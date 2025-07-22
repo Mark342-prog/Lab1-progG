@@ -6,8 +6,8 @@ public class CollectibleManager : MonoBehaviour
     public static CollectibleManager Instance;
     
     public List<CollectibleItem> allCollectibles = new List<CollectibleItem>();
-    public GameObject bridgeSwitch; // Objeto que activará el puente
-    public BridgeController bridgeController; // Referencia al controlador del puente
+    public GameObject bridgeSwitch; 
+    public BridgeController bridgeController; 
 
     private void Awake()
     {

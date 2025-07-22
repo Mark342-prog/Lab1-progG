@@ -30,7 +30,6 @@ public class PlayerCollector : MonoBehaviour
         
         HandleInteractionInput();
         
-        // Mantener el cubo en posición si lo tenemos agarrado
         if (heldCube != null)
         {
             heldCube.transform.position = holdPosition.position;
@@ -50,18 +49,15 @@ public class PlayerCollector : MonoBehaviour
 
     if (hitDetected)
     {
-        // Comprobar si es un objeto recolectable
         if (hit.collider.CompareTag("Collectible"))
         {
             currentItem = hit.collider.GetComponent<CollectibleItem>();
             ShowInteractionPrompt("Recoger [E]");
         }
-        // Comprobar si es un cubo movible
         else if (IsMovableObject(hit.collider.gameObject))
         {
             ShowInteractionPrompt(heldCube != null ? "Soltar [E]" : "Agarrar [E]");
         }
-        // Comprobar si es el interruptor del puente
         else if (hit.collider.CompareTag("BridgeSwitch"))
         {
             currentBridgeSwitch = hit.collider.GetComponent<BridgeSwitch>();
@@ -94,8 +90,7 @@ void HandleInteractionInput()
         {
             ReleaseCube();
         }
-        
-        // Interacción con el interruptor del puente
+    
         if (currentBridgeSwitch != null)
         {
             currentBridgeSwitch.ActivateBridge();
@@ -135,7 +130,6 @@ void HandleInteractionInput()
         HideInteractionPrompt();
     }
 
-    // Cambia esta función para solucionar problemas de detección
 void TryGrabCube()
 {
     RaycastHit hit;
@@ -153,8 +147,7 @@ void TryGrabCube()
         {
             heldCube = hit.collider.gameObject;
             heldCubeRb = heldCube.GetComponent<Rigidbody>();
-            
-            // Resetear la velocidad para evitar movimientos bruscos
+
             heldCubeRb.linearVelocity = Vector3.zero;
             heldCubeRb.angularVelocity = Vector3.zero;
             
@@ -166,8 +159,7 @@ void TryGrabCube()
                 heldCube.GetComponent<Collider>(),
                 true
             );
-            
-            // Asegurar que el cubo no sea hijo del jugador
+
             heldCube.transform.SetParent(null);
         }
     }
@@ -176,19 +168,16 @@ void TryGrabCube()
     void ReleaseCube()
     {
         if (heldCube == null) return;
-        
-        // Restaurar propiedades físicas
+
         heldCubeRb.isKinematic = false;
         heldCubeRb.useGravity = true;
-        
-        // Reactivar colisiones
+
         Physics.IgnoreCollision(
             GetComponent<Collider>(),
             heldCube.GetComponent<Collider>(),
             false
         );
-        
-        // Aplicar fuerza de lanzamiento
+
         heldCubeRb.AddForce(transform.forward * throwForce, ForceMode.Impulse);
         
         heldCube = null;
@@ -202,8 +191,6 @@ void TryGrabCube()
             itemCounterText.text = $"Objetos: {itemsCollected}";
         }
     }
-
-    // Visualizar el rango de interacción en el editor
     void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.blue;

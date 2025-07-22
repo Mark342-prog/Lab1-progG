@@ -12,7 +12,7 @@ public class PlayerRespawn : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.R))
         {
-            Debug.Log("🔁 R presionado, intentando respawn...");
+            Debug.Log(" R presionado, intentando respawn...");
             Respawn();
         }
     }
@@ -21,7 +21,7 @@ public class PlayerRespawn : MonoBehaviour
     {
         if (other.CompareTag("EnemyTrigger"))
         {
-            Debug.Log("💥 Tocó trampa. Respawn...");
+            Debug.Log(" Tocó trampa. Respawn...");
             Respawn();
         }
     }
@@ -43,6 +43,6 @@ void Respawn()
         transform.position = checkpoint;
     }
 
-    Debug.Log("🚀 Respawn a: " + checkpoint);
+    Debug.Log(" Respawn a: " + checkpoint);
 }
 }
