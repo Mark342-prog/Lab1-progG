@@ -4,7 +4,6 @@ public class PlayerRespawn : MonoBehaviour
 {
     private void Start()
     {
-
         CheckpointManager.Instance.SetCheckpoint(transform.position);
     }
 
@@ -12,37 +11,37 @@ public class PlayerRespawn : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.R))
         {
-            Debug.Log(" R presionado, intentando respawn...");
+            Debug.Log("R presionado, intentando respawn...");
             Respawn();
         }
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("EnemyTrigger"))
+        if (other.CompareTag("EnemyTrigger") || other.CompareTag("TurretProjectile"))
         {
-            Debug.Log(" Tocó trampa. Respawn...");
+            Debug.Log("Tocó trampa o fue impactado por torreta. Respawn...");
             Respawn();
         }
     }
 
-void Respawn()
-{
-    Vector3 checkpoint = CheckpointManager.Instance.GetCheckpoint();
-
-    CharacterController cc = GetComponent<CharacterController>();
-
-    if (cc != null)
+    public void Respawn()
     {
-        cc.enabled = false; 
-        transform.position = checkpoint;
-        cc.enabled = true; 
-    }
-    else
-    {
-        transform.position = checkpoint;
-    }
+        Vector3 checkpoint = CheckpointManager.Instance.GetCheckpoint();
 
-    Debug.Log(" Respawn a: " + checkpoint);
-}
+        CharacterController cc = GetComponent<CharacterController>();
+
+        if (cc != null)
+        {
+            cc.enabled = false; 
+            transform.position = checkpoint;
+            cc.enabled = true; 
+        }
+        else
+        {
+            transform.position = checkpoint;
+        }
+
+        Debug.Log("Respawn a: " + checkpoint);
+    }
 }
