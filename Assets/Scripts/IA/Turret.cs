@@ -3,8 +3,12 @@ using System.Collections;
 
 public class TurretController : MonoBehaviour
 {
+    [Header("Turret References")]
+    public Transform baseTransform; 
+    public Transform headTransform; 
+    public Transform firePoint;     
+   
     [Header("Turret Settings")]
-    public Transform firePoint;   
     public float range = 20f;
     public float fireRate = 1f; 
     public float rotationSpeed = 5f;
@@ -17,9 +21,29 @@ public class TurretController : MonoBehaviour
     public LineRenderer laserLine;
     public float laserDuration = 0.1f;
     
+    [Header("Rotation Constraints")]
+    public float minElevation = -10f;
+    public float maxElevation = 30f;
+    
     private Transform player;
     private float fireCooldown = 0f;
     private bool hasLineOfSight = false;
+
+    void Start()
+    {
+        
+        if (baseTransform == null)
+        {
+            baseTransform = transform.Find("Base2");
+            if (baseTransform == null) baseTransform = transform;
+        }
+        
+        if (headTransform == null)
+        {
+            headTransform = transform.Find("Head");
+            if (headTransform == null) headTransform = transform;
+        }
+    }
 
     void Update()
     {
@@ -27,12 +51,13 @@ public class TurretController : MonoBehaviour
         
         if (player == null) return;
 
-       
-        Vector3 direction = (player.position - transform.position).normalized;
-        Quaternion lookRotation = Quaternion.LookRotation(direction);
-        transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * rotationSpeed);
+    
+        RotateBaseTowardsPlayer();
 
-     
+
+        RotateHeadTowardsPlayer();
+
+
         CheckLineOfSight();
 
         fireCooldown -= Time.deltaTime;
@@ -42,6 +67,41 @@ public class TurretController : MonoBehaviour
             Shoot();
             fireCooldown = 1f / fireRate;
         }
+    }
+
+    void RotateBaseTowardsPlayer()
+    {
+        if (player == null) return;
+
+
+        Vector3 direction = player.position - baseTransform.position;
+        direction.y = 0;
+        
+        if (direction != Vector3.zero)
+        {
+
+            Quaternion targetRotation = Quaternion.LookRotation(-direction);
+            baseTransform.rotation = Quaternion.Slerp(baseTransform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
+        }
+    }
+
+    void RotateHeadTowardsPlayer()
+    {
+        if (player == null || headTransform == null) return;
+
+
+        Vector3 direction = player.position - headTransform.position;
+        
+        float distance = direction.magnitude;
+        float angle = Mathf.Asin(direction.y / distance) * Mathf.Rad2Deg;
+        
+        angle = Mathf.Clamp(angle, minElevation, maxElevation);
+        
+
+        Vector3 baseEuler = baseTransform.eulerAngles;
+        headTransform.localEulerAngles = new Vector3(angle, 0, 0);
+
+        headTransform.eulerAngles = new Vector3(headTransform.eulerAngles.x, baseEuler.y, headTransform.eulerAngles.z);
     }
 
     void FindNearestPlayer()
@@ -66,7 +126,7 @@ public class TurretController : MonoBehaviour
     void CheckLineOfSight()
     {
         hasLineOfSight = false;
-        if (player == null) return;
+        if (player == null || firePoint == null) return;
 
         Vector3 directionToPlayer = (player.position - firePoint.position).normalized;
         RaycastHit hit;
@@ -77,16 +137,12 @@ public class TurretController : MonoBehaviour
             {
                 hasLineOfSight = true;
             }
-            else
-            {
-                hasLineOfSight = false;
-            }
         }
     }
 
     void Shoot()
     {
-        if (player == null) return;
+        if (player == null || firePoint == null) return;
 
         RaycastHit hit;
         if (Physics.Raycast(firePoint.position, firePoint.forward, out hit, range, playerLayer))
